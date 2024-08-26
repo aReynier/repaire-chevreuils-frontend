@@ -1,27 +1,96 @@
-@import './base.css';
+:root {
+  --main-background-color: #fcfce4;
 
-#app {
+  --main-logo-color: #1b2c22;
+  --secondary--logo--color: #c66828;
+
+  --secondary-clear-background-color: #e4ccb5;
+  --secondary-dark-background-color: #783e19;
+
+  --tertiary-clear-background-color: #d6dcd2;
+  --tertiary-dark-background-color: #4f6244;
+
+  --main-text-color: var(--main-logo-color);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Poppins-Bold';
+  src: url('fonts/Poppins-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Lora-BoldItalic';
+  src: url('fonts/Lora-BoldItalic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Lora-MediumItalic';
+  src: url('fonts/Lora-MediumItalic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Rufina-Regular';
+  src: url('fonts/Rufina-Regular.ttf') format('truetype');
+}
+
+body {
+  min-height: 100vh;
+  color: var(--main-text-color);
+  background: var(--main-background-color);
+  transition:
+    color 0.5s,
+    --main-background-color 0.5s;
+  font-family: Rufina-Regular, serif;
+  font-size: 1rem;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-family: Poppins-Bold, sans-serif;
+  font-size: 2.25rem;
+}
+
+h2 {
+  font-family: Poppins-Bold, sans-serif;
+  font-size: 2rem;
+}
+
+h3 {
+  font-family: Poppins-Bold, sans-serif;
+  font-size: 1.5rem;
+}
+
+/* #app {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
-}
+} */
 
-a,
-.green {
+a {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: #1b2c22;
   transition: 0.4s;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    color: #6e9458;
   }
 }
 
-@media (min-width: 1024px) {
+/* @media (min-width: 1024px) {
   body {
     display: flex;
     place-items: center;
@@ -32,4 +101,4 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
-}
+} */
