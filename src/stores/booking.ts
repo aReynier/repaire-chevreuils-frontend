@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 interface BookingState {
   arrivalDate: Date | null
   departureDate: Date | null
+  nightNumber: number
   adultNumber: number
   couplesAmongAdults: number
   childNumber: number
@@ -13,6 +14,7 @@ export const useBookingStore = defineStore('booking', {
   state: (): BookingState => ({
     arrivalDate: null,
     departureDate: null,
+    nightNumber: 0,
     adultNumber: 2,
     couplesAmongAdults: 0,
     childNumber: 0,
@@ -33,10 +35,7 @@ export const useBookingStore = defineStore('booking', {
       }
     },
     addNumber(category: 'adultNumber' | 'childNumber' | 'babyNumber') {
-      console.log('Adding number to:', category)
       this[category]++
-      console.log('test')
-      console.log('New value:', this[category])
     },
     addCoupleNumber() {
       if (this.couplesAmongAdults < Math.floor(this.adultNumber / 2)) {
@@ -45,6 +44,10 @@ export const useBookingStore = defineStore('booking', {
     },
     totalNumber() {
       return this.adultNumber + this.childNumber + this.babyNumber
+    },
+    setDates(arrivalDate: any, departureDate: any) {
+      this.arrivalDate = arrivalDate
+      this.departureDate = departureDate
     }
   }
 })

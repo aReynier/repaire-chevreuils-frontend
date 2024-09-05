@@ -3,6 +3,8 @@ import { defineComponent, computed } from 'vue'
 import 'v-calendar/style.css'
 import { VDateInput } from 'vuetify/labs/VDateInput'
 import { useBookingStore } from '@/stores/booking'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 
 export default defineComponent({
   name: 'BookingBox',
@@ -14,28 +16,18 @@ export default defineComponent({
       isDatePicker: false,
       dateRange: [] as Date[],
       nightsNumber: 1
-      // adultNumber: 2,
-      // couplesAmongAdults: 0,
-      // childNumber: 0,
-      // babyNumber: 0
     }
   },
   setup() {
     const bookingStore = useBookingStore()
-
-    // const arrivalDate = computed(() => bookingStore.arrivalDate)
-    // const departureDate = computed(() => bookingStore.departureDate)
     const adultNumber = computed(() => bookingStore.adultNumber)
     const couplesAmongAdults = computed(() => bookingStore.couplesAmongAdults)
     const childNumber = computed(() => bookingStore.childNumber)
     const babyNumber = computed(() => bookingStore.babyNumber)
 
-    const { arrivalDate, departureDate, substractNumber, addNumber, addCoupleNumber, totalNumber } =
-      bookingStore
+    const { substractNumber, addNumber, addCoupleNumber, totalNumber } = bookingStore
 
     return {
-      arrivalDate,
-      departureDate,
       adultNumber,
       couplesAmongAdults,
       childNumber,
@@ -47,51 +39,46 @@ export default defineComponent({
       totalNumber
     }
   },
-  methods: {
-    // toggleDatePicker() {
-    //   this.isDatePicker = !this.isDatePicker
-    // },
-    // substractNumber(category: 'adultNumber' | 'couplesAmongAdults' | 'childNumber' | 'babyNumber') {
-    //   if (this[category] > 0) {
-    //     this[category]--
-    //   }
-    //   if (this.couplesAmongAdults > this.adultNumber / 2) {
-    //     this.couplesAmongAdults--
-    //   }
-    // },
-    // addNumber(category: 'adultNumber' | 'childNumber' | 'babyNumber') {
-    //   this[category]++
-    // },
-    // addCoupleNumber() {
-    //   if (this.couplesAmongAdults < Math.floor(this.adultNumber / 2)) {
-    //     this.couplesAmongAdults++
-    //   }
-    // },
-    // totalNumber() {
-    //   return this.adultNumber + this.childNumber + this.babyNumber
-    // }
-  },
+  methods: {},
   computed: {
     calculateNightsNumber() {
       if (this.dateRange === null || this.dateRange.length < 2) {
         return 0
       }
 
-      const startDate = this.dateRange[1]
+      let startDate = this.dateRange[1]
       const endDate = this.dateRange[this.dateRange.length - 1]
 
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.arrivalDate = startDate
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.departureDate = endDate
-
-      const result = Math.ceil(
+      //for now bug patch when there is only one day interval
+      let result = Math.ceil(
         Math.abs(endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
       )
       if (result === 0) {
         return 1
       }
       return result
+    }
+  },
+  watch: {
+    dateRange(newValue) {
+      if (newValue.length >= 2) {
+        //date problem when there is a one day interval and where it's more, temporary patch for now
+        const startDate = format(
+          new Date(newValue[1].setDate(newValue[1].getDate() - 1)),
+          'eeee d MMMM yyyy',
+          { locale: fr }
+        )
+        const endDate = format(newValue[newValue.length - 1], 'eeee d MMMM yyyy', {
+          locale: fr
+        })
+
+        // Update store with the new dates
+        const bookingStore = useBookingStore()
+        bookingStore.setDates(startDate, endDate)
+
+        console.log(bookingStore.arrivalDate)
+        console.log(bookingStore.departureDate)
+      }
     }
   }
 })
@@ -102,17 +89,11 @@ export default defineComponent({
   <div class="booking">
     <v-row class="ma-0 pa-0 booking__container">
       <v-col cols="12" lg="3" class="ma-0 px-5 py-3">
-        <!-- <div @click="toggleDatePicker" class="d-flex pa-2 booking__container__date">
-          <v-icon class="align-self-center mx-3" icon="mdi-calendar-blank-outline"></v-icon>
-          <div>
-            <p>Arrivée/départ</p>
-            <p>01/01/2024-02/01/2024</p>
-          </div>
-        </div> -->
+        <!-- the visual schedule have an hole when the interval is larger than three -->
         <v-date-input
           class="booking__container__date"
           v-model="dateRange"
-          label="Select range"
+          label="Sélectionner période"
           max-width="368"
           multiple="range"
         ></v-date-input>
@@ -125,7 +106,6 @@ export default defineComponent({
               <p>Adultes</p>
               <v-icon icon="mdi-minus-box-outline" @click="substractNumber('adultNumber')"></v-icon>
               {{ adultNumber }}
-              {{ console.log(adultNumber) }}
               <v-icon icon="mdi-plus-box-outline" @click="addNumber('adultNumber')"></v-icon>
             </div>
             <div class="d-flex">
@@ -163,9 +143,13 @@ export default defineComponent({
         <p class="pb-0">Pour {{ totalNumber() }} personnes</p>
       </v-col>
       <v-col cols="12" lg="3" class="ma-0 px-5 py-3 pl-0">
-        <div class="pa-2 d-flex justify-center align-center booking__container__valid">
+        <v-btn
+          class="pa-2 d-flex justify-center align-center booking__container__valid"
+          :to="{ name: 'roomSelection' }"
+          variant="text"
+        >
           <p>Rechercher les disponibilités</p>
-        </div>
+        </v-btn>
         <p class="pb-0"></p>
       </v-col>
     </v-row>
@@ -194,7 +178,7 @@ export default defineComponent({
     }
 
     &__valid {
-      height: 70px;
+      height: 70px !important;
       border: 2px solid var(--secondary--logo--color);
     }
   }
